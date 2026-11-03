@@ -1,44 +1,64 @@
 <script setup>
-import BaseButton from './BaseButton.vue'
-
 defineProps({
-  game: {
-    type: Object,
+  reservations: {
+    type: Array,
     required: true
   }
 })
 
-defineEmits(['reserve'])
+defineEmits(['cancel'])
 </script>
 
 <template>
-  <div class="game-card">
-    <h3>{{ game.name }}</h3>
-    <p>👥 人數：{{ game.minPlayers }} - {{ game.maxPlayers }} 人</p>
-    <p>
-      狀態：<span :class="game.status">{{ game.status === 'available' ? '可預約' : '已預約' }}</span>
-    </p>
-
-    <!-- 使用共用按鈕元件，傳遞禁用狀態與點擊事件 -->
-    <BaseButton 
-      :disabled="game.status === 'reserved'" 
-      @click="$emit('reserve')"
-    >
-      {{ game.status === 'available' ? '立即預約' : '已被預約（額滿）' }}
-    </BaseButton>
+  <div class="reservation-list">
+    <h2>📋 目前預約紀錄</h2>
+    <div v-if="reservations.length === 0" class="empty">目前沒有預約紀錄</div>
+    <ul>
+      <li v-for="item in reservations" :key="item.id" class="reservation-item">
+        <div>
+          <strong>{{ item.gameName }}</strong> - 預約人：{{ item.userName || '訪客' }}
+          <span class="time">（時間：{{ item.time || '未指定' }}）</span>
+        </div>
+        <button @click="$emit('cancel', item.id, item.gameId)" class="cancel-btn">
+          取消預約
+        </button>
+      </li>
+    </ul>
   </div>
 </template>
 
 <style scoped>
-.game-card { 
-  background: white; 
-  border: 1px solid #ddd; 
-  padding: 15px; 
-  border-radius: 8px; 
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.reservation-list {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-top: 20px;
 }
-.available { color: green; font-weight: bold; }
-.reserved { color: red; font-weight: bold; }
+.reservation-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+.cancel-btn {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.cancel-btn:hover {
+  background-color: #cc0000;
+}
+.empty {
+  color: #888;
+  text-align: center;
+  padding: 10px;
+}
 </style>
